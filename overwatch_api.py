@@ -72,6 +72,7 @@ class OverwatchAPI:
         menu_options = self.menu_options_ref[:]
 
         if len(heroes) == 0:
+            self.hero = 'allHeroes'
             return ['']
 
         # If there's only one hero, set the hero key to that hero.
@@ -143,3 +144,14 @@ class OverwatchAPI:
             if time:
                 return self._convert_time(time)
             return 0
+
+    def get_games_played(self, profile, hero):
+        """Returns the games played for a given profile and hero."""
+        try:
+            played = profile[self.mode][self.key2][hero]['game']['gamesPlayed']
+        except KeyError:
+            return 0
+        except TypeError:
+            return 0
+        else:
+            return played

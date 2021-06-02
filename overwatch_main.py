@@ -26,6 +26,7 @@ from overwatch_gui import OverwatchGUI
 from player_files import UserFiles, PlayerProfile
 from overwatch_heroes import OverwatchHeroes
 from overwatch_api import OverwatchAPI
+from overwatch_draw import OverwatchDraw
 import json
 
 
@@ -42,7 +43,6 @@ class OverwatchStatsManager:
         self.draw = None
 
         self.profiles = {}
-        self.data = {}
 
     def start_loop(self):
         """Get the program loop started."""
@@ -103,7 +103,7 @@ class OverwatchStatsManager:
         if data_api.status_code == 200:
             data = data_api.json()
             self.files.save_profile(tag, data)
-            self.gui.alert.api_confirm("Success")
+            self.gui.alert.print("Success", style='success')
             return is_not_private(data)
 
         # If API call failed: We can't go any further.
@@ -125,46 +125,65 @@ class OverwatchStatsManager:
         index = self.gui.panel_stat.box.curselection()
         self.api.stat = self.gui.panel_stat.box.get(index)
 
-        self.get_stat_dict()
-        self._determine_chart_type()
-        # self.make_chart()
+        self.draw = OverwatchDraw(self.get_table(), self.api.stat)
+        self.draw.bar_group()
         self.gui.run.enable()
 
-    def get_stat_dict(self):
-        """TODO: Improve this."""
-        heroes = []
-        [heroes.append(self.owh.get_api_name(h)) for h in self.gui.heroes]
+    def get_table(self):
+        """
+        Creates a table based on the requested stats in the GUI by cycling
+        through each requested profile and hero, then filling lists of equal
+        length that correspond to a table column:
 
-        dataset = {}
+        - Players
+        - Heroes
+        - Colors (associated with the heroes)
+        - Games Played
+        - 'X' (blank if under minimum playtime)
+        - Value of the requested stat
+
+        :return: Stat table where the keys are the column headers listed above
+        and the values are their respective lists.
+        """
+        players, heroes, games, stats, colors, x = [], [], [], [], [], []
+
+        # We should only care about stats for heroes with at least 3h played.
+        min_time = 3 * 3_600
+
+        # Create six lists of equal length, each corresponding to a category.
         for tag in self.profiles:
+            for hero in self.gui.heroes:
 
-            hero_stats = {}
-            for hero in heroes:
-                # Only add hero stats if playtime is above minimum threshold.
-                min_time = 3 * 3_600
-                if self.api.get_playtime(self.profiles[tag], hero) >= min_time:
-                    hero_stats[self.owh.get_proper_name(hero)] = \
-                        self.api.get_stat(self.profiles[tag], hero)
-                else:
-                    hero_stats[self.owh.get_proper_name(hero)] = None
+                # Set variables for better readability.
+                data = self.profiles[tag]
+                api_hero = self.owh.get_api_name(hero)
 
-            if hero_stats:
-                dataset[tag] = hero_stats
+                # Fetch games played and time played for the hero.
+                played = self.api.get_games_played(data, api_hero)
+                time = self.api.get_playtime(data, api_hero)
 
-        print(json.dumps(dataset, indent=4))
+                # Fill the lists.
+                players.append(tag.split('-')[0])
+                heroes.append(hero)
+                games.append(played)
+                stats.append(self.api.get_stat(data, api_hero))
+                colors.append(self.owh.get_color(hero))
 
-    def _determine_chart_type(self):
-        """TODO: Determine the type of chart we should build."""
-        max_cols = 16
-        if (num_heroes := len(self.gui.heroes)) > 3 and len(self.profiles) > 2:
-            rows = int(num_heroes / max_cols) + 1
-            cols = int(num_heroes / rows) + 1
-            # fig = subplot type
-        else:
-            # fig = bargroup type
-            pass
+                # Add an X mark to heroes with low time played.
+                if time >= min_time:
+                    x.append('')
+                elif time < min_time:
+                    x.append('X')
 
-        print("This does nothing of relevance yet.")
+        # Pair each list to headers in a dictionary and return it.
+        return {
+            'Player': players,
+            'Hero': heroes,
+            'Color': colors,
+            'Games Played': games,
+            'X': x,
+            self.api.stat: stats,
+        }
 
     def cmd_quit(self):
         """TODO: Make this kill the whole program, not just the GUI."""

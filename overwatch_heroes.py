@@ -74,7 +74,7 @@ class OverwatchHeroes:
                 'Color': '#84C951'
             },
             'McCree': {
-                'API': 'mcCree',
+                'API': 'mccree',
                 'Role': 'Damage',
                 'Color': '#B05A5D'
             },
@@ -175,9 +175,12 @@ class OverwatchHeroes:
             },
         }
 
-    def _get_color(self, name):
+    def get_color(self, name):
         """Returns the color hex associated to an Overwatch hero."""
-        return self.overwatch_heroes[name]['Color']
+        try:
+            return self.overwatch_heroes[name]['Color']
+        except KeyError:
+            return self.overwatch_heroes[self.get_proper_name(name)]['Color']
 
     def get_role_list(self):
         """Returns a list of all Overwatch hero roles, plus 'All'."""

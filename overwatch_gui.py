@@ -439,9 +439,9 @@ class OverwatchGUI:
             ent_hero.delete(0, tk.END)
 
             if new_hero is False:
-                self.alert.warn("Please enter a valid hero name")
+                self.alert.print("Please enter a valid hero name", style='warn')
             elif new_hero in self.heroes:
-                self.alert.warn(f"Hero '{new_hero}' has already been added")
+                self.alert.print(f"Hero '{new_hero}' has already been added", style='warn')
             elif new_hero:
                 self.panel_hero.box.insert(0, new_hero)
                 self.heroes.append(new_hero)
