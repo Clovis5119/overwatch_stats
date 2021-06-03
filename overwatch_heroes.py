@@ -115,7 +115,7 @@ class OverwatchHeroes:
             },
             'Roadhog': {
                 'API': 'roadhog',
-                'Role': 'Damage',
+                'Role': 'Tank',
                 'Color': '#B58C51'
             },
             'Sigma': {

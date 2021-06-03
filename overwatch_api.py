@@ -1,4 +1,5 @@
 import json
+import datetime
 
 
 class OverwatchAPI:
@@ -35,7 +36,7 @@ class OverwatchAPI:
         # Keys used to read the API data from highest to lowest dict level.
         # Defaults are just examples.
         self.mode = 'quickPlayStats'
-        self.key2 = 'careerStats'         # Should never change.
+        self.key2 = 'careerStats'  # Should never change.
         self.hero = 'allHeroes'
         self.option = 'average'
         self.stat = 'eliminationsAvgPer10Min'
@@ -65,9 +66,13 @@ class OverwatchAPI:
     def get_new_stat_menu_presets(self, heroes):
         """
         Returns menu options based on the number of heroes provided.
-         0 heroes: menu is empty.
-         1 hero: menu includes all options.
-         2+ heroes: menu includes all options except 'heroSpecific'.
+
+        - 0 heroes: Menu is empty.
+        - 1 hero: Menu includes all options.
+        - 2+ heroes: Menu includes all options except 'heroSpecific'.
+
+        :param list heroes: current list of selected heroes
+        :return: list of menu options
         """
         menu_options = self.menu_options_ref[:]
 
@@ -86,63 +91,94 @@ class OverwatchAPI:
             self.hero = 'allHeroes'
             return menu_options
 
-    def get_new_stat_menu(self, key):
+    def get_new_stat_menu(self, option):
         """
-        Returns a list of menu options corresponding to the provided key.
-        Ex: 'game' -> ['gamesLost', 'gamesPlayed', 'gamesWon', 'timePlayed'].
-        If the provided key is not in the active list of accepted menu options,
-         the method returns False instead.
-        The menu options are retrieved from the reference file.
+        Returns a list of stats paired to the provided menu option.
+
+        Ex: If the option 'game' is provided, the method returns ['gamesLost',
+        'gamesPlayed', 'gamesWon', 'timePlayed'].
+
+        If the provided key is not in the active list of accepted menu
+        options, the method returns False instead.
+
+        The AttributeError exception handles the heroes that do not have an
+        'assists' stat category.
+
+        All menu options are retrieved from the reference file.
+
+        :param str option: stat menu option e.g. 'average'
+        :return: list of stats or False if option was invalid
         """
-        if key in self.menu_options_ref:
-            self.option = key
-            return self.data_ref['quickPlayStats'][self.key2]\
-                [self.hero][key].keys()
-        else:
+        if option not in self.menu_options_ref:
             return False
+
+        self.option = option
+
+        try:
+            stats = self.data_ref \
+                ['quickPlayStats'][self.key2][self.hero][option].keys()
+        except AttributeError:
+            pass
+        else:
+            return stats
 
     def get_stat(self, profile, hero):
         """Returns a stat for a given profile and current key selection."""
         try:
             stat = profile[self.mode][self.key2][hero][self.option][self.stat]
-        except KeyError:
-            return 0
-        except TypeError:
+        except KeyError or TypeError:
             return 0
         else:
-            return self._convert_stat(stat)
-
-    def _convert_stat(self, stat):
-        """Convert a stat to an integer if it is a duration or percentage."""
-        try:
-            iter(stat)
-        except TypeError:
+            if isinstance(stat, str):
+                return self._converted_str(stat)
             return stat
 
+    def _converted_str(self, stat):
+        """
+        Converts a percentage or time stat to an int or float type.
+
+        :param str stat: a percentage or time string
+        :return: percentage (int) or duration (int / float)
+        """
         for c in stat:
-            if c == '%':
+            if c == '%':    # String represents a percentage
                 return int(stat.split('%')[0])
-            elif c == ':':
+            if c == ':':    # String represents a duration
                 return self._convert_time(stat)
 
-        return stat
+        print("Uh oh, it looks like we were passed a value we couldn't "
+              "handle. That wasn't meant to happen!")
 
-    def _convert_time(self, n):
-        """Converts an 'hh:mm:ss' or 'mm:ss' time string to seconds."""
+    def _convert_time(self, n, convert=None):
+        """
+        Converts a time string to seconds; or hours or minutes if specified.
+
+        Method supports 'hh:mm:ss', 'mm:ss', and 'ss' time formats.
+
+        :param str n: time
+        :arg convert: optional: 'hours' or 'minutes'
+        :returns: converted time
+        """
         s = [1, 60, 3600]
-        return sum(x * int(t) for x, t in zip(s, reversed(n.split(':'))))
+        secs = sum(x * int(t) for x, t in zip(s, reversed(n.split(':'))))
+
+        if convert == 'hours':
+            return round(secs / 3600, 1)
+
+        if convert == 'minutes':
+            return round(secs / 360)
+
+        return secs
 
     def get_playtime(self, profile, hero):
         """Returns the playtime for a given profile and hero."""
         try:
             time = profile[self.mode][self.key2][hero]['game']['timePlayed']
-        except KeyError:
-            return 0
-        except TypeError:
+        except KeyError or TypeError:
             return 0
         else:
             if time:
-                return self._convert_time(time)
+                return self._convert_time(time, convert='hours')
             return 0
 
     def get_games_played(self, profile, hero):

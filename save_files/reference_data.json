@@ -65,7 +65,8 @@
                     "gamesLost": 1,
                     "gamesPlayed": 5,
                     "gamesWon": 4,
-                    "timePlayed": "01:14:08"
+                    "timePlayed": "01:14:08",
+                    "winPercentage": ""
                 },
                 "matchAwards": {
                     "cards": 3,
@@ -675,7 +676,8 @@
                     "gamesLost": 17090,
                     "gamesPlayed": 42687,
                     "gamesWon": 25597,
-                    "timePlayed": "5353:35:49"
+                    "timePlayed": "5353:35:49",
+                    "winPercentage": ""
                 },
                 "matchAwards": {
                     "cards": 18320,

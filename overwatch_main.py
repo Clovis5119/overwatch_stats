@@ -27,6 +27,7 @@ from player_files import UserFiles, PlayerProfile
 from overwatch_heroes import OverwatchHeroes
 from overwatch_api import OverwatchAPI
 from overwatch_draw import OverwatchDraw
+import datetime
 import json
 
 
@@ -40,7 +41,6 @@ class OverwatchStatsManager:
         self.owh = OverwatchHeroes()
         self.api = OverwatchAPI(self)
         self.gui = OverwatchGUI(self)
-        self.draw = None
 
         self.profiles = {}
 
@@ -125,8 +125,9 @@ class OverwatchStatsManager:
         index = self.gui.panel_stat.box.curselection()
         self.api.stat = self.gui.panel_stat.box.get(index)
 
-        self.draw = OverwatchDraw(self.get_table(), self.api.stat)
-        self.draw.bar_group()
+        draw = OverwatchDraw(self.get_table(), self.api.stat)
+        draw.sort_data_frame()
+        draw.bar_group()
         self.gui.run.enable()
 
     def get_table(self):
@@ -148,10 +149,10 @@ class OverwatchStatsManager:
         players, heroes, games, stats, colors, x = [], [], [], [], [], []
 
         # We should only care about stats for heroes with at least 3h played.
-        min_time = 3 * 3_600
+        min_time = 3
 
         # Create six lists of equal length, each corresponding to a category.
-        for tag in self.profiles:
+        for tag in self.gui.players:
             for hero in self.gui.heroes:
 
                 # Set variables for better readability.
@@ -166,8 +167,14 @@ class OverwatchStatsManager:
                 players.append(tag.split('-')[0])
                 heroes.append(hero)
                 games.append(played)
-                stats.append(self.api.get_stat(data, api_hero))
                 colors.append(self.owh.get_color(hero))
+
+                # This will use hours for time played without changing the
+                # time scale for other duration-based stats.
+                if self.api.stat == 'timePlayed':
+                    stats.append(time)
+                elif self.api.stat != 'timePlayed':
+                    stats.append(self.api.get_stat(data, api_hero))
 
                 # Add an X mark to heroes with low time played.
                 if time >= min_time:
