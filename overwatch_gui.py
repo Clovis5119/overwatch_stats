@@ -69,7 +69,7 @@ class OverwatchGUI:
         self.box_height_adjusted = False
 
     def boot_gui(self):
-        """Calls all of the methods responsible for instantiating, placing,
+        """Calls all the methods responsible for instantiating, placing,
         and configuring GUI widgets."""
         self._instantiate_main_widgets()
         self._config_main_window()

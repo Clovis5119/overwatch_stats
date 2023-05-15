@@ -58,7 +58,8 @@ class PlayerProfile(UserFiles):
     """
     This class represents a single player profile in Overwatch.
     It inherits from UserFiles for no good reason other than that this more
-     conveniently allows them to share directory settings.
+     conveniently allows them to share directory settings. I still need to
+     learn more about subclass usage :|
 
     Instantiate a PlayerProfile by passing a player's battletag, platform, and
      region information. You may then attempt to retrieve the profile data

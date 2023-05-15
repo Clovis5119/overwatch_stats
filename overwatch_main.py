@@ -78,13 +78,19 @@ class OverwatchStatsManager:
             :rtype: bool
             :returns: True if profile is not private, or False
             """
-            if stats['private']:
-                self.gui.alert.print(f"Profile for > {tag} < is set to private!",
-                                     color='yellow')
-                return False
-            else:
-                self.profiles[tag] = stats
-                return True
+
+            try:
+                if stats['private']:
+                    self.gui.alert.print(
+                        f"Profile for > {tag} < is set to private!",
+                        color='yellow')
+                    return False
+                else:
+                    self.profiles[tag] = stats
+                    return True
+            except KeyError:
+                self.gui.alert.print(
+                    f"Profile for > {tag} < is corrupt!", color='yellow')
 
         # Create PlayerProfile object and retrieve data on file, if any.
         profile = PlayerProfile(tag, platform, region)
@@ -115,7 +121,7 @@ class OverwatchStatsManager:
         # self.owp.
 
     def cmd_run_stats(self):
-        """TODO: Build this method."""
+        """Fetch and draw stats based on GUI state."""
 
         # Disable the RUN button to prevent spam.
         self.gui.run.disable()
@@ -125,6 +131,7 @@ class OverwatchStatsManager:
         index = self.gui.panel_stat.box.curselection()
         self.api.stat = self.gui.panel_stat.box.get(index)
 
+        # Fetch the stats and display them.
         draw = OverwatchDraw(self.get_table(), self.api.stat)
         draw.sort_data_frame()
         draw.bar_group()
@@ -170,7 +177,7 @@ class OverwatchStatsManager:
                 colors.append(self.owh.get_color(hero))
 
                 # This will use hours for time played without changing the
-                # time scale for other duration-based stats.
+                # timescale for other duration-based stats.
                 if self.api.stat == 'timePlayed':
                     stats.append(time)
                 elif self.api.stat != 'timePlayed':

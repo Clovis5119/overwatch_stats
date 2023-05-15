@@ -124,10 +124,20 @@ class OverwatchAPI:
 
     def get_stat(self, profile, hero):
         """Returns a stat for a given profile and current key selection."""
+
         try:
+
+            # For reasons I can't understand, the if/except block doesn't
+            # catch the TypeError that occurs if this key doesn't exist,
+            # so I'm catching it with an if-statement instead.
+
+            if profile[self.mode][self.key2][hero][self.option] is None:
+                return 0
             stat = profile[self.mode][self.key2][hero][self.option][self.stat]
+
         except KeyError or TypeError:
             return 0
+
         else:
             if isinstance(stat, str):
                 return self._converted_str(stat)
@@ -141,9 +151,9 @@ class OverwatchAPI:
         :return: percentage (int) or duration (int / float)
         """
         for c in stat:
-            if c == '%':    # String represents a percentage
+            if c == '%':  # String represents a percentage
                 return int(stat.split('%')[0])
-            if c == ':':    # String represents a duration
+            if c == ':':  # String represents a duration
                 return self._convert_time(stat)
 
         print("Uh oh, it looks like we were passed a value we couldn't "
