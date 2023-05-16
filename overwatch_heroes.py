@@ -38,6 +38,11 @@ class OverwatchHeroes:
                 'Role': 'Support',
                 'Color': '#8B625D'
             },
+            'Cassidy': {
+                'API': 'cassidy',
+                'Role': 'Damage',
+                'Color': '#B05A5D'
+            },
             'D.Va': {
                 'API': 'dVa',
                 'Role': 'Tank',
@@ -63,20 +68,30 @@ class OverwatchHeroes:
                 'Role': 'Damage',
                 'Color': '#B9B489'
             },
+            'Junker Queen': {
+                'API': 'junkerQueen',
+                'Role': 'Tank',
+                'Color': '#00c3ff'
+            },
             'Junkrat': {
                 'API': 'junkrat',
                 'Role': 'Damage',
                 'Color': '#E9BC51'
             },
+            'Kiriko': {
+                'API': 'kiriko',
+                'Role': 'Support',
+                'Color': '#00c3ff'
+            },
+            'Lifeweaver': {
+                'API': 'lifeweaver',
+                'Role': 'Support',
+                'Color': '#00c3ff'
+            },
             'Lucio': {
                 'API': 'lucio',
                 'Role': 'Support',
                 'Color': '#84C951'
-            },
-            'McCree': {
-                'API': 'mccree',
-                'Role': 'Damage',
-                'Color': '#B05A5D'
             },
             'Mei': {
                 'API': 'mei',
@@ -103,6 +118,11 @@ class OverwatchHeroes:
                 'Role': 'Damage',
                 'Color': '#3C7BC6'
             },
+            'Ramattra': {
+                'API': 'ramattra',
+                'Role': 'Tank',
+                'Color': '#00c3ff'
+            },
             'Reaper': {
                 'API': 'reaper',
                 'Role': 'Damage',
@@ -122,6 +142,11 @@ class OverwatchHeroes:
                 'API': 'sigma',
                 'Role': 'Tank',
                 'Color': '#93A0A4'
+            },
+            'Sojourn': {
+                'API': 'sojourn',
+                'Role': 'Damage',
+                'Color': '#00c3ff'
             },
             'Soldier:76': {
                 'API': 'soldier76',

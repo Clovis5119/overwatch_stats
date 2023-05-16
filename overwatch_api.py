@@ -41,11 +41,11 @@ class OverwatchAPI:
         self.option = 'average'
         self.stat = 'eliminationsAvgPer10Min'
 
-        # The possible presets to be shown in the GUI dropdown menu.
-        # A reference is created because the presets may change.
-        self.menu_options_ref = [
-            'assists', 'average', 'best', 'combat', 'heroSpecific',
-            'game', 'matchAwards', 'miscellaneous']
+        # Initial options menu for GUI upon loading.
+        self.menu_options_ref = list(
+            self.data_ref[self.mode][self.key2][self.hero].keys())
+
+        # Live options are made separate from static reference.
         self.menu_options = self.menu_options_ref[:]
 
     def _get_reference_data(self):
@@ -117,8 +117,10 @@ class OverwatchAPI:
         try:
             stats = self.data_ref \
                 ['quickPlayStats'][self.key2][self.hero][option].keys()
-        except AttributeError:
+
+        except (AttributeError, KeyError):
             pass
+
         else:
             return stats
 
@@ -126,16 +128,9 @@ class OverwatchAPI:
         """Returns a stat for a given profile and current key selection."""
 
         try:
-
-            # For reasons I can't understand, the if/except block doesn't
-            # catch the TypeError that occurs if this key doesn't exist,
-            # so I'm catching it with an if-statement instead.
-
-            if profile[self.mode][self.key2][hero][self.option] is None:
-                return 0
             stat = profile[self.mode][self.key2][hero][self.option][self.stat]
 
-        except KeyError or TypeError:
+        except (KeyError, TypeError):
             return 0
 
         else:

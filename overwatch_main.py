@@ -207,8 +207,8 @@ class OverwatchStatsManager:
 main = OverwatchStatsManager()
 main.start_loop()
 
-print(f"\n{main.gui.heroes}")
-print(main.gui.players)
+# print(f"\n{main.gui.heroes}")
+# print(main.gui.players)
 # print(main.api.option)
-print(main.api.stat)
-print(main.api.mode)
+# print(main.api.stat)
+# print(main.api.mode)
